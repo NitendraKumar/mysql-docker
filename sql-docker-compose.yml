@@ -1,0 +1,31 @@
+#use root/example as user/password credentials
+version: '3.1'
+
+services:
+  db:
+    image: mysql:5.6.33
+    container_name: db_app_container
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'imadmin' # TODO: This is root password 
+      MYSQL_DATABASE: your_db_name # Default Database name created using below schema.sql script
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_password
+    volumes:
+      - /{your_host_directory}/data:/var/lib/mysql
+      - /{your_logs_directory}/logs:/var/log/mysql
+      - /{your_DB_schema_directory}/db_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+  phpmyadmin:
+    depends_on:
+     - db
+    image: phpmyadmin/phpmyadmin
+    container_name: db_admin_container
+    restart: always
+    ports:
+      - 8088:80
+    environment:
+        PMA_HOST: db
+        MYSQL_ROOT_PASSWORD: imadmin
